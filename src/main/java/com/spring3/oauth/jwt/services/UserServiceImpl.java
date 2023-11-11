@@ -58,7 +58,6 @@ public class UserServiceImpl implements UserService {
                 oldUser.setRoles(user.getRoles());
 
                 savedUser = userRepository.save(oldUser);
-                userRepository.refresh(savedUser);
             } else {
                 throw new RuntimeException("Can't find record with identifier: " + userRequest.getId());
             }
@@ -66,7 +65,6 @@ public class UserServiceImpl implements UserService {
 //            user.setCreatedBy(currentUser);
             savedUser = userRepository.save(user);
         }
-        userRepository.refresh(savedUser);
         UserResponse userResponse = modelMapper.map(savedUser, UserResponse.class);
         return userResponse;
     }

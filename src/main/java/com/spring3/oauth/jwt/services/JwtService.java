@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ import java.util.function.Function;
 
 @Component
 public class JwtService {
+
+    @Value("${jwt.cookieExpiry}")
+    private int cookieExpiry;
 
     public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
 
@@ -67,11 +71,13 @@ public class JwtService {
 
     private String createToken(Map<String, Object> claims, String username) {
 
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + cookieExpiry*1000L);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*1))
+                .setExpiration(expiryDate)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 

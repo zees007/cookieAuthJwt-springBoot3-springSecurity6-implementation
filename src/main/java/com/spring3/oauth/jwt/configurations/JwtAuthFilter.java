@@ -4,6 +4,7 @@ import com.spring3.oauth.jwt.helpers.UserDetailsServiceImpl;
 import com.spring3.oauth.jwt.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
-            token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+
+        if(request.getCookies() != null){
+            for(Cookie cookie: request.getCookies()){
+                if(cookie.getName().equals("accessToken")){
+                    token = cookie.getValue();
+                }
+            }
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if(token == null){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        username = jwtService.extractUsername(token);
+
+        if(username != null){
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
             if(jwtService.validateToken(token, userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

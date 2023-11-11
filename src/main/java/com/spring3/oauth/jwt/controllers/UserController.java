@@ -75,33 +75,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public JwtResponseDTO AuthenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO){
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
-        if(authentication.isAuthenticated()){
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequestDTO.getUsername());
-           return JwtResponseDTO.builder()
-                   .accessToken(jwtService.GenerateToken(authRequestDTO.getUsername()))
-                   .token(refreshToken.getToken()).build();
 
-        } else {
-            throw new UsernameNotFoundException("invalid user request..!!");
-        }
-
-    }
-
-
-    @PostMapping("/refreshToken")
-    public JwtResponseDTO refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
-        return refreshTokenService.findByToken(refreshTokenRequestDTO.getToken())
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUserInfo)
-                .map(userInfo -> {
-                    String accessToken = jwtService.GenerateToken(userInfo.getUsername());
-                    return JwtResponseDTO.builder()
-                            .accessToken(accessToken)
-                            .token(refreshTokenRequestDTO.getToken()).build();
-                }).orElseThrow(() ->new RuntimeException("Refresh Token is not in DB..!!"));
-    }
 
 }
