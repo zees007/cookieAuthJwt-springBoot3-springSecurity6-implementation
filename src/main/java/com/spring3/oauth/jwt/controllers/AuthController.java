@@ -6,6 +6,11 @@ import com.spring3.oauth.jwt.dtos.RefreshTokenRequestDTO;
 import com.spring3.oauth.jwt.models.RefreshToken;
 import com.spring3.oauth.jwt.services.JwtService;
 import com.spring3.oauth.jwt.services.RefreshTokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +47,11 @@ public class AuthController {
     @Value("${jwt.cookieExpiry}")
     private int cookieExpiry;
 
+    @Operation(summary = "Login to the system using username and password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Logged in successfully.",
+                    content = @Content(schema = @Schema(implementation = JwtResponseDTO.class)))
+    })
     @PostMapping("/login")
     public JwtResponseDTO AuthenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(), authRequestDTO.getPassword()));
