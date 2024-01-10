@@ -4,3 +4,5 @@ The server can transmit the JWT token to the browser via a cookie, and upon requ
 Refer to my medium blog for proper explanation.
 
 https://medium.com/@mhmdzeeshan/cookie-based-jwt-authentication-with-spring-security-756f70664673
+
+(Don't forget to give max claps 👏👏👏 (50 max) on my blog to motivate me for providing such more articles) 😊
